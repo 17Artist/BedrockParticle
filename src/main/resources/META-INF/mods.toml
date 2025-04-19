@@ -1,0 +1,21 @@
+modLoader = "javafml"
+loaderVersion = "${loader_version_range}"
+license = "${mod_license}"
+[[mods]]
+    modId = "bedrockparticle"
+    version = "${mod_version}"
+    displayName = "BedrockParticle"
+    authors = "${mod_authors}"
+    description = ''''''
+[[dependencies.bedrockparticle]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.bedrockparticle]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

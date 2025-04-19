@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "priv.seventeen.artist.bedrockparticle.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "bedrockparticle.refmap.json",
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8",
+  "client": [
+    "ParticleEngineMixin"
+  ]
+}
