@@ -4,7 +4,7 @@
 
 ## 简介
 - 移植基岩版粒子至Java版1.20.1
-- 如客户端安装ArcartX，会拓展ArcartX让其支持基岩粒子效果
+- 如客户端安装[ArcartX](https://arcartx.com/)，会拓展ArcartX让其支持基岩粒子效果
 
 ## 说明
 本项目基于以下开源项目进行二次开发：
