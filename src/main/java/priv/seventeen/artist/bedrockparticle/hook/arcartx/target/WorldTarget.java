@@ -27,7 +27,7 @@ import priv.seventeen.artist.bedrockparticle.hook.arcartx.data.ArcartXEntityData
  * @author: 17Artist
  * @create: 2025-04-01 08:32
  **/
-public class WorldTarget extends ArcartXTarget{
+public class WorldTarget extends ArcartXTarget {
 
     private final double yaw;
 

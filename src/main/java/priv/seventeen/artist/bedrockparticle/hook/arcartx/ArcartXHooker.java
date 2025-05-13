@@ -32,6 +32,7 @@ public class ArcartXHooker {
 
     public static void init(){
         ArcartXEventManager.registerListener(new ArcartXEntityManager());
+        ArcartXEventManager.registerListener(new ArcartXNetWork());
     }
 
 }
