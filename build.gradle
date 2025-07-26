@@ -123,8 +123,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     compileOnly  'org.projectlombok:lombok:1.18.24'
 
-    implementation 'priv.seventeen.artist.arcartx:ArcartX_API:1.3.238'
-    compileOnly('priv.seventeen.artist.arcartx:ShimmerForArcartX:1.56.10-Release')
+    implementation 'priv.seventeen.artist.arcartx:ArcartX-Client:1.6.563'
 
 
     library "gg.moonflower:molang-compiler:3.1.1.19"

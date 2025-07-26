@@ -3,7 +3,7 @@ package priv.seventeen.artist.bedrockparticle.hook.arcartx;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import priv.seventeen.artist.arcartx.common.api.events.EventHandler;
-import priv.seventeen.artist.arcartx.common.api.events.IListener;
+import priv.seventeen.artist.arcartx.common.api.events.Listener;
 import priv.seventeen.artist.arcartx.common.api.events.arcartx.client.CustomPacketEvent;
 import priv.seventeen.artist.bedrockparticle.render.particle.instance.BedrockParticleEmitterImpl;
 import priv.seventeen.artist.bedrockparticle.target.LocationTarget;
@@ -14,7 +14,7 @@ import priv.seventeen.artist.bedrockparticle.target.LocationTarget;
  * @author: 17Artist
  * @create: 2025-05-12 23:48
  **/
-public class ArcartXNetWork implements IListener {
+public class ArcartXNetWork implements Listener {
 
     @EventHandler
     public void onCustomPacketEvent(CustomPacketEvent event){

@@ -24,7 +24,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import priv.seventeen.artist.arcartx.common.api.anmiation.locator.GeoLocatorInfo;
 import priv.seventeen.artist.arcartx.common.api.events.EventHandler;
-import priv.seventeen.artist.arcartx.common.api.events.IListener;
+import priv.seventeen.artist.arcartx.common.api.events.Listener;
 import priv.seventeen.artist.arcartx.common.api.events.arcartx.animation.AnimationEffectEvent;
 import priv.seventeen.artist.arcartx.common.api.events.arcartx.animation.AnimationLocatorUpdateEvent;
 import priv.seventeen.artist.arcartx.common.api.events.minecraft.ClientTickEvent;
@@ -45,7 +45,7 @@ import java.util.UUID;
  * @author: 17Artist
  * @create: 2025-03-31 06:40
  **/
-public class ArcartXEntityManager implements IListener {
+public class ArcartXEntityManager implements Listener {
 
     static Map<UUID, ArcartXEntityData> effectDataMap = new HashMap<>();
 
@@ -57,7 +57,7 @@ public class ArcartXEntityManager implements IListener {
 
     @EventHandler
     public void onUpdate(AnimationLocatorUpdateEvent event){
-        ArcartXEntityData data = getOrCreateEffectData((Entity) event.entity().getHandler());
+        ArcartXEntityData data = getOrCreateEffectData((Entity) event.entity());
         data.update(event.locatorInfos());
     }
 
@@ -100,7 +100,7 @@ public class ArcartXEntityManager implements IListener {
             if(locator.isEmpty()){
                 locator = "entity_position";
             }
-            ArcartXEntityData data = ArcartXEntityManager.getOrCreateEffectData((Entity) event.entity().getHandler());
+            ArcartXEntityData data = ArcartXEntityManager.getOrCreateEffectData((Entity) event.entity());
             GeoLocatorInfo geoLocatorInfo = data.getLocator(locator);
             ArcartXTarget target = switch (mode){
                 case "body" -> new BodyTarget(data,locator,yaw);
@@ -109,7 +109,7 @@ public class ArcartXEntityManager implements IListener {
             };
             BedrockParticleEmitterImpl emitter =
                     new BedrockParticleEmitterImpl(
-                            (Entity) event.entity().getHandler(),
+                            (Entity) event.entity(),
                             target,
                             Minecraft.getInstance().level,
                             geoLocatorInfo.x(), geoLocatorInfo.y(), geoLocatorInfo.z(),
