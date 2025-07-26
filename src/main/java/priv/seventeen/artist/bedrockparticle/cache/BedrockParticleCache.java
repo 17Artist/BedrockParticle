@@ -21,6 +21,7 @@ import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.apache.commons.io.IOUtils;
+import priv.seventeen.artist.bedrockparticle.BedrockParticle;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -51,6 +52,7 @@ public class BedrockParticleCache {
                                                   Executor gameExecutor) {
         Map<ResourceLocation, String> particles = new HashMap<>();
 
+        BedrockParticle.LOGGER.info("Loading bedrock particles...");
         return CompletableFuture.allOf(
                         load(backgroundExecutor, resourceManager, particles::put)
                 .thenCompose(stage::wait).thenAcceptAsync(empty -> {
