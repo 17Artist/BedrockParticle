@@ -53,18 +53,10 @@ public class ParticleEngineMixin {
 
 
 
-    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;)V",
+    @Inject(method = "render",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LightTexture;turnOffLightLayer()V",ordinal = 0))
-    public void renderPost(PoseStack poseStack,
-                           MultiBufferSource.BufferSource bufferSource,
-                           LightTexture lightTexture,
-                           Camera camera,
-                           float partialTicks,
-                           Frustum clippingHelper,CallbackInfo ci) {
+    public void renderPost(LightTexture lightTexture, Camera camera, float f, CallbackInfo ci) {
         RenderSystem.enableDepthTest();
-        PoseStack poseStack2 = RenderSystem.getModelViewStack();
-        poseStack2.pushPose();
-        poseStack2.mulPoseMatrix(poseStack.last().pose());
         RenderSystem.applyModelViewMatrix();
 
         Iterable<Particle> iterable = this.particles.get(BedrockParticleInstanceImpl.GEOMETRY_SHEET);
@@ -72,12 +64,11 @@ public class ParticleEngineMixin {
             RenderSystem.setShader(GameRenderer::getParticleShader);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             Tesselator tesselator = Tesselator.getInstance();
-            BufferBuilder bufferBuilder = tesselator.getBuilder();
-            BedrockParticleInstanceImpl.GEOMETRY_SHEET.begin(bufferBuilder, this.textureManager);
+            BufferBuilder bufferBuilder = BedrockParticleInstanceImpl.GEOMETRY_SHEET.begin(tesselator, this.textureManager);
 
             for (Particle particle : iterable) {
                 try {
-                    particle.render(bufferBuilder, camera, partialTicks);
+                    particle.render(bufferBuilder, camera, f);
                 } catch (Throwable var17) {
                     CrashReport crashReport = CrashReport.forThrowable(var17, "Rendering Particle");
                     CrashReportCategory crashReportCategory = crashReport.addCategory("Particle being rendered");
@@ -87,10 +78,8 @@ public class ParticleEngineMixin {
                 }
             }
 
-            BedrockParticleInstanceImpl.GEOMETRY_SHEET.end(tesselator);
         }
 
-        poseStack2.popPose();
         RenderSystem.applyModelViewMatrix();
         RenderSystem.depthMask(true);
         RenderSystem.disableBlend();

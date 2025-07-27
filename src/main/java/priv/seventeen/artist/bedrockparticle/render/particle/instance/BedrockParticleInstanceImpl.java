@@ -16,9 +16,7 @@
 package priv.seventeen.artist.bedrockparticle.render.particle.instance;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import gg.moonflower.molangcompiler.api.MolangEnvironment;
 import gg.moonflower.molangcompiler.api.MolangEnvironmentBuilder;
@@ -63,14 +61,8 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
     public static final ParticleGroup GROUP = new ParticleGroup(10000);
     public static final ParticleRenderType GEOMETRY_SHEET = new ParticleRenderType() {
         @Override
-        public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
-        }
-
-        @Override
-        public void end(Tesselator tesselator) {
-            Minecraft.getInstance().renderBuffers().bufferSource().endBatch();
-            RenderSystem.enableDepthTest();
-            Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
+        public @NotNull BufferBuilder begin(Tesselator tesselator, TextureManager textureManager) {
+            return tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
         }
 
         public String toString() {
@@ -282,29 +274,25 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
 
         Matrix4f matrix4f =  POSITION.set(MATRIX_STACK.position());
 
-        consumer.vertex(matrix4f, -1.0F, -1.0F, 0.0F);
-        consumer.uv(uMax, vMax);
-        consumer.color(r, g, b, a);
-        consumer.uv2(light);
-        consumer.endVertex();
+        consumer.addVertex(matrix4f, -1.0F, -1.0F, 0.0F);
+        consumer.setUv(uMax, vMax);
+        consumer.setColor(r, g, b, a);
+        consumer.setLight(light);
 
-        consumer.vertex(matrix4f, -1.0F, 1.0F, 0.0F);
-        consumer.uv(uMax, vMin);
-        consumer.color(r, g, b, a);
-        consumer.uv2(light);
-        consumer.endVertex();
+        consumer.addVertex(matrix4f, -1.0F, 1.0F, 0.0F);
+        consumer.setUv(uMax, vMin);
+        consumer.setColor(r, g, b, a);
+        consumer.setLight(light);
 
-        consumer.vertex(matrix4f, 1.0F, 1.0F, 0.0F);
-        consumer.uv(uMin, vMin);
-        consumer.color(r, g, b, a);
-        consumer.uv2(light);
-        consumer.endVertex();
+        consumer.addVertex(matrix4f, 1.0F, 1.0F, 0.0F);
+        consumer.setUv(uMin, vMin);
+        consumer.setColor(r, g, b, a);
+        consumer.setLight(light);
 
-        consumer.vertex(matrix4f, 1.0F, -1.0F, 0.0F);
-        consumer.uv(uMin, vMax);
-        consumer.color(r, g, b, a);
-        consumer.uv2(light);
-        consumer.endVertex();
+        consumer.addVertex(matrix4f, 1.0F, -1.0F, 0.0F);
+        consumer.setUv(uMin, vMax);
+        consumer.setColor(r, g, b, a);
+        consumer.setLight(light);
     }
 
     @Override
