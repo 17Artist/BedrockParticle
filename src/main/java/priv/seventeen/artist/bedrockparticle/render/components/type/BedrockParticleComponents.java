@@ -94,7 +94,7 @@ public class BedrockParticleComponents {
 
     static <T extends ParticleComponent> BedrockParticleComponentType<T> register(String key, BedrockParticleDataFactory<T> dataFactory, BedrockParticleComponentFactory<T> componentFactory) {
         BedrockParticleComponentType<T> type = new BedrockParticleComponentType<>(dataFactory, componentFactory);
-        COMPONENT_TYPE.put(ResourceLocation.parse(key), type);
+        COMPONENT_TYPE.put(ResourceLocation.tryParse(key), type);
         return type;
     }
 }

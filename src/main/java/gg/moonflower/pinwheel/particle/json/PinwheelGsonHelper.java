@@ -20,8 +20,8 @@ import com.google.gson.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 
 @ApiStatus.Internal
 public final class PinwheelGsonHelper {

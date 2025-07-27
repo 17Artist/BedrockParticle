@@ -14,8 +14,11 @@ package priv.seventeen.artist.bedrockparticle.cache;
 
 import gg.moonflower.pollen.particle.BedrockParticleManager;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -42,8 +45,10 @@ import java.util.function.Function;
 public class BedrockParticleCache {
     public static void registerReloadListener() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.getResourceManager() instanceof ReloadableResourceManager resourceManager)
+        if (mc.getResourceManager() instanceof ReloadableResourceManager resourceManager) {
             resourceManager.registerReloadListener(BedrockParticleCache::reload);
+            BedrockParticle.LOGGER.info("registered bedrock particle cache reload listener");
+        }
 
     }
 
@@ -51,7 +56,6 @@ public class BedrockParticleCache {
                                                   ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor,
                                                   Executor gameExecutor) {
         Map<ResourceLocation, String> particles = new HashMap<>();
-
         BedrockParticle.LOGGER.info("Loading bedrock particles...");
         return CompletableFuture.allOf(
                         load(backgroundExecutor, resourceManager, particles::put)

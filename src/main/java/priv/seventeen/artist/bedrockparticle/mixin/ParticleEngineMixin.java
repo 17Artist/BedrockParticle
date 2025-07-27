@@ -53,14 +53,9 @@ public class ParticleEngineMixin {
 
 
 
-    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;)V",
+    @Inject(method = "render",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LightTexture;turnOffLightLayer()V",ordinal = 0))
-    public void renderPost(PoseStack poseStack,
-                           MultiBufferSource.BufferSource bufferSource,
-                           LightTexture lightTexture,
-                           Camera camera,
-                           float partialTicks,
-                           Frustum clippingHelper,CallbackInfo ci) {
+    public void renderPost(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, LightTexture lightTexture, Camera camera, float f, CallbackInfo ci) {
         RenderSystem.enableDepthTest();
         PoseStack poseStack2 = RenderSystem.getModelViewStack();
         poseStack2.pushPose();
@@ -77,7 +72,7 @@ public class ParticleEngineMixin {
 
             for (Particle particle : iterable) {
                 try {
-                    particle.render(bufferBuilder, camera, partialTicks);
+                    particle.render(bufferBuilder, camera, f);
                 } catch (Throwable var17) {
                     CrashReport crashReport = CrashReport.forThrowable(var17, "Rendering Particle");
                     CrashReportCategory crashReportCategory = crashReport.addCategory("Particle being rendered");
