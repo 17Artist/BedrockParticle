@@ -91,7 +91,7 @@ public final class ParticleComponentParserImpl {
         Map<String, ParticleComponent> components = new HashMap<>(json.size());
         for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
             try {
-                ResourceLocation id = ResourceLocation.parse(entry.getKey());
+                ResourceLocation id = ResourceLocation.tryParse(entry.getKey());
                 BedrockParticleComponentType<?> type = BedrockParticleComponents.COMPONENT_TYPE.get(id);
                 if (type == null) {
                     LOGGER.error("Unknown particle component: {}", id);   continue;

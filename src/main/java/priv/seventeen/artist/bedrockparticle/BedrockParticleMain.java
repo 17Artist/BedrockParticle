@@ -19,25 +19,14 @@
  */
 package priv.seventeen.artist.bedrockparticle;
 
-import com.mojang.logging.LogUtils;
-import gg.moonflower.molangcompiler.api.MolangCompiler;
-import gg.moonflower.pinwheel.particle.PinwheelMolangCompiler;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
-import org.slf4j.Logger;
-import priv.seventeen.artist.bedrockparticle.hook.arcartx.ArcartXHooker;
+import net.fabricmc.api.ModInitializer;
 
-public class BedrockParticle implements ClientModInitializer {
 
-    public static final Logger LOGGER = LogUtils.getLogger();
-
+public class BedrockParticleMain implements ModInitializer {
 
     @Override
-    public void onInitializeClient() {
-        PinwheelMolangCompiler.set(MolangCompiler.create(MolangCompiler.OPTIMIZE_FLAG, BedrockParticle.class.getClassLoader()));
-        if(FabricLoader.getInstance().isModLoaded("arcartx")){
-            LOGGER.info("ArcartX is loaded, enabling compatibility features.");
-            ArcartXHooker.init();
-        }
+    public void onInitialize() {
+
+
     }
 }
