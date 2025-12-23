@@ -59,7 +59,7 @@ public record Flipbook(MolangExpression baseU,
             float[] sizeUV = JsonTupleParser.getFloat(jsonObject, "size_UV", 2, null);
             float[] stepUV = JsonTupleParser.getFloat(jsonObject, "step_UV", 2, null);
             float fps = PinwheelGsonHelper.getAsFloat(jsonObject, "frames_per_second", 1);
-            MolangExpression maxFrame = JsonTupleParser.getExpression(jsonObject, "max_frame", null);
+            MolangExpression maxFrame = JsonTupleParser.getExpression(jsonObject, "max_frame", () -> MolangExpression.ZERO);
             boolean stretchToLifetime = PinwheelGsonHelper.getAsBoolean(jsonObject, "stretch_to_lifetime", false);
             boolean loop = PinwheelGsonHelper.getAsBoolean(jsonObject, "loop", false);
             return new Flipbook(uv[0], uv[1], sizeUV[0], sizeUV[1], stepUV[0], stepUV[1], fps, maxFrame, stretchToLifetime, loop);

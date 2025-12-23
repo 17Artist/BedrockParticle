@@ -5,7 +5,7 @@
  * Minor modifications by 17Artist (2025-3-29)
  *
  * Changes:
- * - Renamed package from ‘gg.moonflower.pollen.*’  to 'priv.seventeen.artist' (all subpackages)
+ * - Renamed package from 閳ユg.moonflower.pollen.*閳? to 'priv.seventeen.artist' (all subpackages)
  * - Implemented LOOKAT_DIRECTION mode and emitter rotation
  *
  * This program is free software: you can redistribute it and/or modify
@@ -58,7 +58,7 @@ public class ParticleAppearanceBillboardComponentImpl extends BedrockParticleCom
         renderProperties.setHeight(environment.safeResolve(this.data.size()[1]));
         this.data.textureSetter().setUV(this.particle, environment, renderProperties);
 
-        // 运算粒子位置
+        // 鏉╂劗鐣荤划鎺戠摍娴ｅ秶鐤?
         Vector3dc pos = this.particle.position(partialTicks);
 
         switch (this.data.cameraMode()) {
@@ -181,16 +181,16 @@ public class ParticleAppearanceBillboardComponentImpl extends BedrockParticleCom
         switch (this.data.cameraMode()) {
             case EMITTER_TRANSFORM_XZ ->
             {
-                renderProperties.getRotation().set(Axis.XP.rotationDegrees(90));
-                renderProperties.setDirection(true);
+                renderProperties.getRotation().set(Axis.XP.rotationDegrees(-90));
+                renderProperties.setDirection(false);
             }
             case EMITTER_TRANSFORM_YZ ->
             {
                 renderProperties.getRotation().set(Axis.YP.rotationDegrees(90));
-                renderProperties.setDirection(true);
+                renderProperties.setDirection(false);
             }
             case EMITTER_TRANSFORM_XY -> {
-                renderProperties.setDirection(true);
+                renderProperties.setDirection(false);
             }
         }
     }
@@ -203,7 +203,7 @@ public class ParticleAppearanceBillboardComponentImpl extends BedrockParticleCom
         }
         MolangEnvironment environment = this.particle.getEnvironment();
 
-        // 获取粒子的方向向量
+        // 閼惧嘲褰囩划鎺戠摍閻ㄥ嫭鏌熼崥鎴濇倻闁?
         double dx, dy, dz;
         MolangExpression[] customDirection = this.data.customDirection();
         if (customDirection != null) {
@@ -225,3 +225,5 @@ public class ParticleAppearanceBillboardComponentImpl extends BedrockParticleCom
 
 
 }
+
+

@@ -5,7 +5,7 @@
  * Minor modifications by 17Artist (2025-3-29)
  *
  * Changes:
- * - Renamed package from ‘gg.moonflower.pollen.*’  to 'priv.seventeen.artist' (all subpackages)
+ * - Renamed package from 鈥榞g.moonflower.pollen.*鈥? to 'priv.seventeen.artist' (all subpackages)
  * - Merged all interfaces and implementation classes into a single entity class
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@ import lombok.Setter;
 import net.minecraft.client.renderer.LightTexture;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
+import org.joml.Vector3f;
 
 /**
  * @program: bedrockparticle
@@ -45,6 +46,11 @@ public class QuadRenderProperties {
     private float alpha = 1F;
 
     private final Quaternionf rotation = new Quaternionf();
+
+    private final Vector3f rollAxis = new Vector3f(0.0F, 0.0F, 1.0F);
+
+    @Setter
+    private boolean useEmitterPitch = true;
 
     @Setter
     private float width = 0F;
@@ -70,6 +76,13 @@ public class QuadRenderProperties {
 
     public void setRotation(Quaternionfc rotation){
         this.rotation.set(rotation);
+    }
+
+    public void setRollAxis(float x, float y, float z) {
+        this.rollAxis.set(x, y, z);
+        if (this.rollAxis.lengthSquared() > 0.0F) {
+            this.rollAxis.normalize();
+        }
     }
 
 
@@ -127,3 +140,4 @@ public class QuadRenderProperties {
     }
 
 }
+
