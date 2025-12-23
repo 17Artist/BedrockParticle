@@ -58,8 +58,10 @@ public record ParticleAppearanceBillboardComponent(MolangExpression[] size,
         MolangExpression[] customDirection = null;
         if (jsonObject.has("direction")) {
             JsonObject directionJson = PinwheelGsonHelper.getAsJsonObject(jsonObject, "direction");
-            if ("custom_direction".equals(PinwheelGsonHelper.getAsString(directionJson, "mode"))) {
-                customDirection = JsonTupleParser.getExpression(directionJson, "direction", 3, () -> new MolangExpression[]{
+            String mode = PinwheelGsonHelper.getAsString(directionJson, "mode", "from_motion");
+            if ("custom_direction".equalsIgnoreCase(mode) || "custom".equalsIgnoreCase(mode)) {
+                String key = directionJson.has("custom_direction") ? "custom_direction" : "direction";
+                customDirection = JsonTupleParser.getExpression(directionJson, key, 3, () -> new MolangExpression[]{
                         MolangExpression.ZERO,
                         MolangExpression.ZERO,
                         MolangExpression.ZERO
@@ -72,15 +74,21 @@ public record ParticleAppearanceBillboardComponent(MolangExpression[] size,
         TextureSetter textureSetter = ParticleAppearanceBillboardComponent.DEFAULT_UV;
         if (jsonObject.has("uv")) {
             JsonObject uvJson = PinwheelGsonHelper.getAsJsonObject(jsonObject, "uv");
-            int textureWidth = PinwheelGsonHelper.getAsInt(uvJson, "texture_width", 1);
-            int textureHeight = PinwheelGsonHelper.getAsInt(uvJson, "texture_height", 1);
+            int textureWidth = PinwheelGsonHelper.getAsInt(uvJson, "texture_width", 128);
+            int textureHeight = PinwheelGsonHelper.getAsInt(uvJson, "texture_height", 128);
 
             if (uvJson.has("flipbook")) {
                 Flipbook flipbook = ParticleParser.parseFlipbook(uvJson.get("flipbook"));
                 textureSetter = TextureSetter.flipbook(textureWidth, textureHeight, flipbook);
             } else {
-                MolangExpression[] uv = JsonTupleParser.getExpression(uvJson, "uv", 2, null);
-                MolangExpression[] uvSize = JsonTupleParser.getExpression(uvJson, "uv_size", 2, null);
+                MolangExpression[] uv = JsonTupleParser.getExpression(uvJson, "uv", 2, () -> new MolangExpression[]{
+                        MolangExpression.ZERO,
+                        MolangExpression.ZERO
+                });
+                MolangExpression[] uvSize = JsonTupleParser.getExpression(uvJson, "uv_size", 2, () -> new MolangExpression[]{
+                        MolangExpression.of(textureWidth),
+                        MolangExpression.of(textureHeight)
+                });
                 textureSetter = TextureSetter.constant(textureWidth, textureHeight, uv, uvSize);
             }
         }

@@ -20,6 +20,7 @@
 package priv.seventeen.artist.bedrockparticle.hook.arcartx;
 
 import priv.seventeen.artist.arcartx.common.api.events.ArcartXEventManager;
+import priv.seventeen.artist.bedrockparticle.BedrockParticle;
 import priv.seventeen.artist.bedrockparticle.hook.arcartx.data.ArcartXEntityManager;
 
 /**
@@ -30,9 +31,22 @@ import priv.seventeen.artist.bedrockparticle.hook.arcartx.data.ArcartXEntityMana
  **/
 public class ArcartXHooker {
 
-    public static void init(){
+    public static void init() {
+//        if (!isClientClassesAvailable()) {
+//            BedrockParticle.LOGGER.warn("ArcartX hook disabled: client classes are not available.");
+//            return;
+//        }
         ArcartXEventManager.registerListener(new ArcartXEntityManager());
         ArcartXEventManager.registerListener(new ArcartXNetWork());
     }
+
+//    private static boolean isClientClassesAvailable() {
+//        try {
+//            Class.forName("net.minecraft.client.particle.Particle", false, ArcartXHooker.class.getClassLoader());
+//            return true;
+//        } catch (Throwable ignored) {
+//            return false;
+//        }
+//    }
 
 }

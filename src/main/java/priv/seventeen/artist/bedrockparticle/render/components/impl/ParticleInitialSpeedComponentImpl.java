@@ -34,7 +34,10 @@ public class ParticleInitialSpeedComponentImpl extends BedrockParticleComponentI
 
     @Override
     public void onCreate(BedrockParticle particle) {
-        BedrockParticlePhysics physics = this.getPhysics();
+        BedrockParticlePhysics physics = particle.getPhysics();
+        if (physics == null) {
+            return;
+        }
         MolangEnvironment environment = particle.getEnvironment();
         float dx = environment.safeResolve(this.data.speed()[0]) / 20F;
         float dy = environment.safeResolve(this.data.speed()[1]) / 20F;
