@@ -5,7 +5,7 @@
  * Minor modifications by 17Artist (2025-3-29)
  *
  * Changes:
- * - Renamed package from ‘gg.moonflower.pollen.*’  to 'priv.seventeen.artist' (all subpackages)
+ * - Renamed package from 閳ユg.moonflower.pollen.*閳? to 'priv.seventeen.artist' (all subpackages)
  * - Added implementation for rotation and following features
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,6 @@
  */
 package priv.seventeen.artist.bedrockparticle.render.particle.instance;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import gg.moonflower.molangcompiler.api.MolangEnvironment;
@@ -27,7 +26,7 @@ import gg.moonflower.pollen.particle.render.QuadRenderProperties;
 import gg.moonflower.pinwheel.particle.transform.MatrixStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector4f;
-import priv.seventeen.artist.bedrockparticle.BedrockParticle;
+import org.joml.Vector3f;
 import priv.seventeen.artist.bedrockparticle.render.components.type.BedrockParticleComponentFactory;
 import gg.moonflower.pollen.particle.BedrockParticleEmitter;
 import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleComponent;
@@ -124,15 +123,14 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
         profiler.pop();
 
 
-
         if (this.renderProperties != null) {
             profiler.push("tessellate");
             MATRIX_STACK.pushMatrix();
-            if(emitter.isRelativeRotation() && emitter.getTarget() != null){
+            if (emitter.isRelativeRotation() && emitter.getTarget() != null) {
                 emitter.yaw = emitter.getTarget().getYaw(partialTicks) + 180;
                 emitter.pitch = emitter.getTarget().getPitch(partialTicks);
             }
-            if(this.renderProperties.isDirection()){
+            if (this.renderProperties.isDirection()) {
                 Vec3 cameraPos = camera.getPosition();
 
 
@@ -141,8 +139,8 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
                 float emitterY = (float) (emitterPos.y() - cameraPos.y());
                 float emitterZ = (float) (emitterPos.z() - cameraPos.z());
 
-                if(emitter.isRelativePosition() && emitter.getTarget() != null){
-                    // 求发射器和实体位置差进行移动
+                if (emitter.isRelativePosition() && emitter.getTarget() != null) {
+                    // 濮瑰倸褰傜亸鍕珤閸滃苯鐤勬担鎾茬秴缂冾喖妯婃潻娑滎攽缁夎濮?
                     double targetX = emitter.getTarget().getX(partialTicks);
                     double targetY = emitter.getTarget().getY(partialTicks);
                     double targetZ = emitter.getTarget().getZ(partialTicks);
@@ -157,14 +155,14 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
                 float relativeZ = (float) (particlePos.z() - emitterPos.z());
 
                 MATRIX_STACK.translate(emitterX, emitterY, emitterZ);
-
                 float emitterYaw = this.emitter.yaw;
                 float emitterPitch = this.emitter.pitch;
-
-                MATRIX_STACK.rotate(Axis.YP.rotationDegrees(-emitterYaw));
-                MATRIX_STACK.rotate(Axis.XP.rotationDegrees(-emitterPitch));
-
-
+                if (emitter.isRelativeRotation()) {
+                    MATRIX_STACK.rotate(Axis.YP.rotationDegrees(-emitterYaw));
+                    if (this.renderProperties.isUseEmitterPitch()) {
+                        MATRIX_STACK.rotate(Axis.XP.rotationDegrees(-emitterPitch));
+                    }
+                }
 
                 MATRIX_STACK.translate(relativeX, relativeY, relativeZ);
 
@@ -174,30 +172,39 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
                 float particleRelativeX = (float) (pos.x() - emitterPos.x());
                 float particleRelativeY = (float) (pos.y() - emitterPos.y());
                 float particleRelativeZ = (float) (pos.z() - emitterPos.z());
-                if(emitter.isRelativePosition() && emitter.getTarget() != null) {
-                    // 求发射器和实体位置差进行移动
+                if (emitter.isRelativePosition() && emitter.getTarget() != null) {
+                    // æ±‚å‘å°„å™¨å’Œå®žä½“ä½ç½®å·®è¿›è¡Œç§»åŠ¨
                     double targetX = emitter.getTarget().getX(partialTicks);
                     double targetY = emitter.getTarget().getY(partialTicks);
                     double targetZ = emitter.getTarget().getZ(partialTicks);
 
                     MATRIX_STACK.translate(targetX - emitterPos.x(), targetY - emitterPos.y(), targetZ - emitterPos.z());
                 }
-                float emitterYaw = (float) Math.toRadians(emitter.yaw);
-                float emitterPitch = (float) Math.toRadians(emitter.pitch);
-                Matrix4f rotationMatrix = new Matrix4f().identity();
-                Matrix4f tempMatrix = new Matrix4f().identity();
-                tempMatrix.identity().rotateY(-emitterYaw);
-                rotationMatrix.mul(tempMatrix);
-                tempMatrix.identity().rotateX(-emitterPitch);
-                rotationMatrix.mul(tempMatrix);
 
-                Vector4f particlePos = new Vector4f(particleRelativeX, particleRelativeY, particleRelativeZ, 1.0f);
-                rotationMatrix.transform(particlePos);
+                float finalX;
+                float finalY;
+                float finalZ;
+                if (emitter.isRelativeRotation()) {
+                    float emitterYaw = (float) Math.toRadians(emitter.yaw);
+                    float emitterPitch = (float) Math.toRadians(emitter.pitch);
+                    Matrix4f rotationMatrix = new Matrix4f().identity();
+                    Matrix4f tempMatrix = new Matrix4f().identity();
+                    tempMatrix.identity().rotateY(-emitterYaw);
+                    rotationMatrix.mul(tempMatrix);
+                    tempMatrix.identity().rotateX(-emitterPitch);
+                    rotationMatrix.mul(tempMatrix);
 
-                float finalX = (float) (particlePos.x + emitterPos.x());
-                float finalY = (float) (particlePos.y + emitterPos.y());
-                float finalZ = (float) (particlePos.z + emitterPos.z());
+                    Vector4f particlePos = new Vector4f(particleRelativeX, particleRelativeY, particleRelativeZ, 1.0f);
+                    rotationMatrix.transform(particlePos);
 
+                    finalX = (float) (particlePos.x + emitterPos.x());
+                    finalY = (float) (particlePos.y + emitterPos.y());
+                    finalZ = (float) (particlePos.z + emitterPos.z());
+                } else {
+                    finalX = (float) pos.x();
+                    finalY = (float) pos.y();
+                    finalZ = (float) pos.z();
+                }
 
                 Vec3 cameraPos = camera.getPosition();
                 float x = (float) (finalX - cameraPos.x());
@@ -210,7 +217,8 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
                 float zRot = Mth.lerp(partialTicks, this.oRoll, this.roll);
                 MATRIX_STACK.translate(0, 0.01, 0);
                 MATRIX_STACK.rotate(this.renderProperties.getRotation());
-                MATRIX_STACK.rotate((float) (zRot * Math.PI / 180.0F), 0, 0, 1);
+                Vector3f rollAxis = this.renderProperties.getRollAxis();
+                MATRIX_STACK.rotate((float) (zRot * Math.PI / 180.0F), rollAxis.x(), rollAxis.y(), rollAxis.z());
                 MATRIX_STACK.scale(this.renderProperties.getWidth(), this.renderProperties.getHeight(), 1.0F);
                 this.render(this.renderProperties);
             }
@@ -226,7 +234,7 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
 
         this.renderQuad(BUFFER_SOURCE.getBuffer(BedrockParticleRenderType.get(description.texture())), properties);
 
-        // 懒得实现了 那就不支持好了
+        // 閹虫帒绶辩€圭偟骞囨禍?闁絽姘ㄦ稉宥嗘暜閹镐礁銈芥禍?
 
 //        if (description.material() == null) {
 //            return;
@@ -272,7 +280,7 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
         int light = properties.getPackedLight();
 
 
-        Matrix4f matrix4f =  POSITION.set(MATRIX_STACK.position());
+        Matrix4f matrix4f = POSITION.set(MATRIX_STACK.position());
 
         consumer.addVertex(matrix4f, -1.0F, -1.0F, 0.0F);
         consumer.setUv(uMax, vMax);
@@ -325,3 +333,8 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
         return this.emitter;
     }
 }
+
+
+
+
+

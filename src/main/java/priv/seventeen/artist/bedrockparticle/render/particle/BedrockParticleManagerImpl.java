@@ -52,6 +52,14 @@ public final class BedrockParticleManagerImpl {
         particles.forEach((k,v)->{
             try {
                 ParticleData particle = ParticleParser.parseParticle(v);
+                ParticleData.Description description = particle.description();
+                ResourceLocation texture = description.texture();
+                if (texture != null && "minecraft".equals(texture.getNamespace()) && !"minecraft".equals(k.getNamespace())) {
+                    ResourceLocation remapped = ResourceLocation.tryParse(k.getNamespace() + ":" + texture.getPath());
+                    if (remapped != null) {
+                        particle.setTexture(remapped);
+                    }
+                }
                 PARTICLES.put(k, particle);
                 BedrockParticle.LOGGER.info("[Loaded particle] >>>>> {}:{}", k.getNamespace(), k.getPath());
             } catch (Exception e){
