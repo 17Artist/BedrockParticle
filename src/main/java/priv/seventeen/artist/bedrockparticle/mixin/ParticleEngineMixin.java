@@ -16,7 +16,6 @@ package priv.seventeen.artist.bedrockparticle.mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -27,9 +26,9 @@ import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -56,17 +55,28 @@ public class ParticleEngineMixin {
     @Inject(method = "render",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LightTexture;turnOffLightLayer()V",ordinal = 0))
     public void renderPost(LightTexture lightTexture, Camera camera, float f, CallbackInfo ci) {
+        Queue<Particle> queue = this.particles.get(BedrockParticleInstanceImpl.GEOMETRY_SHEET);
+        if (queue == null || queue.isEmpty()) {
+            return;
+        }
+
         RenderSystem.enableDepthTest();
         RenderSystem.applyModelViewMatrix();
 
-        Iterable<Particle> iterable = this.particles.get(BedrockParticleInstanceImpl.GEOMETRY_SHEET);
-        if (iterable != null) {
+        Frustum frustum = new Frustum(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix());
+        Vec3 cameraPos = camera.getPosition();
+        frustum.prepare(cameraPos.x, cameraPos.y, cameraPos.z);
+
+        {
             RenderSystem.setShader(GameRenderer::getParticleShader);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder bufferBuilder = BedrockParticleInstanceImpl.GEOMETRY_SHEET.begin(tesselator, this.textureManager);
 
-            for (Particle particle : iterable) {
+            for (Particle particle : queue) {
+                if (!frustum.isVisible(particle.getBoundingBox())) {
+                    continue;
+                }
                 try {
                     particle.render(bufferBuilder, camera, f);
                 } catch (Throwable var17) {
