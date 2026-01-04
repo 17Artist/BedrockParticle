@@ -52,8 +52,8 @@ public class ArcartXNetWork implements Listener {
 
         BedrockParticle.LOGGER.info("Received custom packet for bedrock particle: id={}, x={}, y={}, z={}, yaw={}, pitch={}", id, x, y, z, yaw, pitch);
         BedrockParticleEmitterImpl emitter = new BedrockParticleEmitterImpl(null, target, Minecraft.getInstance().level, x, y, z, ResourceLocation.tryParse(id));
-        emitter.pitch = target.getYaw(1);
-        emitter.yaw = target.getPitch(1);
+        emitter.yaw = target.getYaw(1);
+        emitter.pitch = target.getPitch(1);
         Minecraft.getInstance().particleEngine.add(emitter);
     }
 

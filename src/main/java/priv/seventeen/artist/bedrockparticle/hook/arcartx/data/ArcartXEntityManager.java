@@ -114,8 +114,8 @@ public class ArcartXEntityManager implements Listener {
                             Minecraft.getInstance().level,
                             geoLocatorInfo.x(), geoLocatorInfo.y(), geoLocatorInfo.z(),
                             ResourceLocation.tryParse(id));
-            emitter.pitch = target.getYaw(1);
-            emitter.yaw = target.getPitch(1);
+            emitter.yaw = target.getYaw(1);
+            emitter.pitch = target.getPitch(1);
 
             Minecraft.getInstance().particleEngine.add(emitter);
         }
