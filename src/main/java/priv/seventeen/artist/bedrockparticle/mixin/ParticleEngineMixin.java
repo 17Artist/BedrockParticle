@@ -52,9 +52,9 @@ public class ParticleEngineMixin {
 
 
 
-    @Inject(method = "render",
+    @Inject(method = "render(Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LightTexture;turnOffLightLayer()V",ordinal = 0))
-    public void renderPost(LightTexture lightTexture, Camera camera, float f, CallbackInfo ci) {
+    public void renderPost(LightTexture p_107339_, Camera camera, float p_107341_, Frustum frustum, CallbackInfo ci) {
         Queue<Particle> queue = this.particles.get(BedrockParticleInstanceImpl.GEOMETRY_SHEET);
         if (queue == null || queue.isEmpty()) {
             return;
@@ -63,7 +63,6 @@ public class ParticleEngineMixin {
         RenderSystem.enableDepthTest();
         RenderSystem.applyModelViewMatrix();
 
-        Frustum frustum = new Frustum(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix());
         Vec3 cameraPos = camera.getPosition();
         frustum.prepare(cameraPos.x, cameraPos.y, cameraPos.z);
 
@@ -78,7 +77,7 @@ public class ParticleEngineMixin {
                     continue;
                 }
                 try {
-                    particle.render(bufferBuilder, camera, f);
+                    particle.render(bufferBuilder, camera, p_107341_);
                 } catch (Throwable var17) {
                     CrashReport crashReport = CrashReport.forThrowable(var17, "Rendering Particle");
                     CrashReportCategory crashReportCategory = crashReport.addCategory("Particle being rendered");

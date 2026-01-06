@@ -22,27 +22,48 @@ package priv.seventeen.artist.bedrockparticle;
 import com.mojang.logging.LogUtils;
 import gg.moonflower.molangcompiler.api.MolangCompiler;
 import gg.moonflower.pinwheel.particle.PinwheelMolangCompiler;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
+import priv.seventeen.artist.bedrockparticle.cache.BedrockParticleCache;
 import priv.seventeen.artist.bedrockparticle.hook.arcartx.ArcartXHooker;
 
 import java.util.Locale;
 
-public class BedrockParticle implements ClientModInitializer {
+
+@Mod(BedrockParticle.MODID)
+public class BedrockParticle {
+
+    public static final String MODID = "bedrockparticle";
 
     public static final Logger LOGGER = LogUtils.getLogger();
 
-
-    @Override
-    public void onInitializeClient() {
+    @SuppressWarnings("removal")
+    public BedrockParticle() {
         MolangCompiler compiler = MolangCompiler.create(MolangCompiler.OPTIMIZE_FLAG, BedrockParticle.class.getClassLoader());
         PinwheelMolangCompiler.set(input -> compiler.compile(normalizeMolang(input)));
-        if(FabricLoader.getInstance().isModLoaded("arcartx")){
+        BedrockParticleCache.registerReloadListener();
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modEventBus.addListener(this::commonSetup);
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+
+
+    private void commonSetup(final FMLCommonSetupEvent event) {
+
+        if(ModList.get().isLoaded("arcartx")){
             LOGGER.info("ArcartX is loaded, enabling compatibility features.");
             ArcartXHooker.init();
         }
+
+
     }
+
 
     private static String normalizeMolang(String input) {
         if (input == null) {
