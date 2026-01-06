@@ -17,15 +17,19 @@ package priv.seventeen.artist.bedrockparticle.render.components.impl;
 import gg.moonflower.pinwheel.particle.component.EmitterRateInstantComponent;
 import gg.moonflower.pollen.particle.BedrockParticle;
 import gg.moonflower.pollen.particle.BedrockParticleEmitter;
-import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleTickComponent;
 import gg.moonflower.pollen.particle.listener.BedrockParticleEmitterListener;
 import org.jetbrains.annotations.ApiStatus;
+import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleTickComponent;
 
 @ApiStatus.Internal
 public class EmitterRateInstantComponentImpl extends BedrockParticleEmitterComponentImpl implements BedrockParticleTickComponent, BedrockParticleEmitterListener {
 
+    private static final int MAX_SPAWN_PER_TICK = 30;
+
     private final EmitterRateInstantComponent data;
     private boolean complete;
+
+    private int pendingCount;
 
     public EmitterRateInstantComponentImpl(BedrockParticle particle, EmitterRateInstantComponent data) {
         super(particle);
@@ -34,9 +38,18 @@ public class EmitterRateInstantComponentImpl extends BedrockParticleEmitterCompo
 
     @Override
     public void tick() {
-        if (!this.complete) {
-            int count = (int) this.particle.getEnvironment().safeResolve(this.data.particleCount());
-            this.particle.emitParticles(count);
+        if (this.complete) {
+            return;
+        }
+        if (this.pendingCount <= 0) {
+            this.pendingCount = (int) this.particle.getEnvironment().safeResolve(this.data.particleCount());
+        }
+        int spawnNow = Math.min(this.pendingCount, MAX_SPAWN_PER_TICK);
+        if (spawnNow > 0) {
+            this.particle.emitParticles(spawnNow);
+            this.pendingCount -= spawnNow;
+        }
+        if (this.pendingCount <= 0) {
             this.complete = true;
         }
     }
@@ -44,5 +57,6 @@ public class EmitterRateInstantComponentImpl extends BedrockParticleEmitterCompo
     @Override
     public void onLoop(BedrockParticleEmitter emitter) {
         this.complete = false;
+        this.pendingCount = 0;
     }
 }

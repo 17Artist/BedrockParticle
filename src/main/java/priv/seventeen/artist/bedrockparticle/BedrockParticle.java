@@ -27,17 +27,28 @@ import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 import priv.seventeen.artist.bedrockparticle.hook.arcartx.ArcartXHooker;
 
+import java.util.Locale;
+
 public class BedrockParticle implements ClientModInitializer {
 
     public static final Logger LOGGER = LogUtils.getLogger();
 
 
+
     @Override
     public void onInitializeClient() {
-        PinwheelMolangCompiler.set(MolangCompiler.create(MolangCompiler.OPTIMIZE_FLAG, BedrockParticle.class.getClassLoader()));
+        MolangCompiler compiler = MolangCompiler.create(MolangCompiler.OPTIMIZE_FLAG, BedrockParticle.class.getClassLoader());
+        PinwheelMolangCompiler.set(input -> compiler.compile(normalizeMolang(input)));
         if(FabricLoader.getInstance().isModLoaded("arcartx")){
             LOGGER.info("ArcartX is loaded, enabling compatibility features.");
             ArcartXHooker.init();
         }
+    }
+
+    private static String normalizeMolang(String input) {
+        if (input == null) {
+            return null;
+        }
+        return input.toLowerCase(Locale.ROOT);
     }
 }

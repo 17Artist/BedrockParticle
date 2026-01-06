@@ -22,8 +22,8 @@ import com.google.gson.JsonParseException;
 import com.mojang.datafixers.util.Either;
 import gg.moonflower.molangcompiler.api.MolangEnvironment;
 import gg.moonflower.molangcompiler.api.MolangExpression;
-import gg.moonflower.pinwheel.particle.json.JsonTupleParser;
 import gg.moonflower.pinwheel.particle.ParticleInstance;
+import gg.moonflower.pinwheel.particle.json.JsonTupleParser;
 import gg.moonflower.pinwheel.particle.json.PinwheelGsonHelper;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +53,7 @@ public record EmitterShapeSphereComponent(MolangExpression[] offset,
     }
 
     @Override
-    public void emitParticles(ParticleEmitterShape.Spawner spawner, int count) {
+    public void emitParticles(Spawner spawner, int count) {
         Random random = spawner.getRandom();
         for (int i = 0; i < count; i++) {
             ParticleInstance particle = spawner.createParticle();
@@ -68,7 +68,7 @@ public record EmitterShapeSphereComponent(MolangExpression[] offset,
             float x = random.nextFloat() * 2 - 1;
             float y = random.nextFloat() * 2 - 1;
             float z = random.nextFloat() * 2 - 1;
-            float length = r / (x * x + y * y + z * z);
+            float length = r / (float) Math.sqrt(x * x + y * y + z * z);
             x *= length;
             y *= length;
             z *= length;

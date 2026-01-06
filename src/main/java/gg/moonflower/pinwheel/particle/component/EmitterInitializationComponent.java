@@ -20,8 +20,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import gg.moonflower.molangcompiler.api.MolangExpression;
+import gg.moonflower.molangcompiler.api.exception.MolangException;
+import gg.moonflower.pinwheel.particle.PinwheelMolangCompiler;
 import gg.moonflower.pinwheel.particle.json.JsonTupleParser;
-import org.jetbrains.annotations.Nullable;
+import gg.moonflower.pinwheel.particle.json.PinwheelGsonHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Component that initializes emitters.
@@ -29,14 +34,51 @@ import org.jetbrains.annotations.Nullable;
  * @author Ocelot
  * @since 1.0.0
  */
-public record EmitterInitializationComponent(@Nullable MolangExpression creationExpression,
-                                             @Nullable MolangExpression tickExpression) implements ParticleEmitterComponent {
+public record EmitterInitializationComponent(MolangExpression[] creationExpressions,
+                                             MolangExpression[] updateExpressions,
+                                             MolangExpression[] renderExpressions) implements ParticleEmitterComponent {
 
     public static EmitterInitializationComponent deserialize(JsonElement json) throws JsonParseException {
         JsonObject object = json.getAsJsonObject();
         return new EmitterInitializationComponent(
-                JsonTupleParser.getExpression(object, "creation_expression", () -> null),
-                JsonTupleParser.getExpression(object, "per_update_expression", () -> null));
+                parseExpressions(object, "creation_expression"),
+                parseExpressions(object, "per_update_expression"),
+                parseExpressions(object, "per_render_expressions"));
+    }
+
+    private static MolangExpression[] parseExpressions(JsonObject object, String name) throws JsonParseException {
+        if (!object.has(name)) {
+            return new MolangExpression[0];
+        }
+
+        JsonElement element = object.get(name);
+        if (element.isJsonArray()) {
+            List<MolangExpression> expressions = new ArrayList<>();
+            for (JsonElement entry : element.getAsJsonArray()) {
+                expressions.add(JsonTupleParser.parseExpression(entry, name));
+            }
+            return expressions.toArray(MolangExpression[]::new);
+        }
+
+        if (element.isJsonPrimitive()) {
+            String raw = PinwheelGsonHelper.convertToString(element, name);
+            String[] parts = raw.split(";");
+            List<MolangExpression> expressions = new ArrayList<>(parts.length);
+            for (String part : parts) {
+                String trimmed = part.trim();
+                if (trimmed.isEmpty()) {
+                    continue;
+                }
+                try {
+                    expressions.add(PinwheelMolangCompiler.get().compile(trimmed));
+                } catch (MolangException e) {
+                    throw new JsonParseException("Failed to compile " + name, e);
+                }
+            }
+            return expressions.toArray(MolangExpression[]::new);
+        }
+
+        throw new JsonParseException("Expected " + name + " to be a JsonArray or string");
     }
 
     @Override

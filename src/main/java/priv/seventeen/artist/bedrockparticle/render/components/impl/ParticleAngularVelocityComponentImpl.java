@@ -5,7 +5,7 @@
  * Minor modifications by 17Artist (2025-3-29)
  *
  * Changes:
- * - Renamed package from ‘gg.moonflower.pollen.*’  to 'priv.seventeen.artist' (all subpackages)
+ * - Renamed package from тАШgg.moonflower.pollen.*тА? to 'priv.seventeen.artist' (all subpackages)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,34 +15,32 @@
 package priv.seventeen.artist.bedrockparticle.render.components.impl;
 
 import gg.moonflower.molangcompiler.api.MolangEnvironment;
-import gg.moonflower.pinwheel.particle.component.ParticleInitialSpeedComponent;
+import gg.moonflower.pinwheel.particle.component.ParticleAngularVelocityComponent;
 import gg.moonflower.pollen.particle.BedrockParticle;
 import gg.moonflower.pollen.particle.listener.BedrockParticleListener;
 import org.jetbrains.annotations.ApiStatus;
-import org.joml.Vector3d;
 import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticlePhysics;
+import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticlePhysicsComponent;
 
 @ApiStatus.Internal
-public class ParticleInitialSpeedComponentImpl extends BedrockParticleComponentImpl implements BedrockParticleListener {
+public class ParticleAngularVelocityComponentImpl extends BedrockParticleComponentImpl implements BedrockParticleListener, BedrockParticlePhysicsComponent {
 
-    private final ParticleInitialSpeedComponent data;
+    private final ParticleAngularVelocityComponent data;
 
-    public ParticleInitialSpeedComponentImpl(BedrockParticle particle, ParticleInitialSpeedComponent data) {
+    public ParticleAngularVelocityComponentImpl(BedrockParticle particle, ParticleAngularVelocityComponent data) {
         super(particle);
         this.data = data;
     }
 
     @Override
     public void onCreate(BedrockParticle particle) {
-        BedrockParticlePhysics physics = particle.getPhysics();
-        if (physics == null) {
-            return;
-        }
-
+        BedrockParticlePhysics physics = this.getPhysics();
         MolangEnvironment environment = particle.getEnvironment();
-        float dx = environment.safeResolve(this.data.speed()[0]) / 20F;
-        float dy = environment.safeResolve(this.data.speed()[1]) / 20F;
-        float dz = environment.safeResolve(this.data.speed()[2]) / 20F;
-        physics.setVelocity(physics.getDirection().mul(dx, dy, dz, new Vector3d()));
+        float rollVelocity = (float) environment.safeResolve(this.data.angularVelocity()[2]) / 20F;
+        physics.setRollVeclocity(rollVelocity);
+    }
+
+    @Override
+    public void physicsTick() {
     }
 }

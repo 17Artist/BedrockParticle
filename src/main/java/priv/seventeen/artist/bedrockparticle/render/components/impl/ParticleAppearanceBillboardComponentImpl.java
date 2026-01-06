@@ -19,15 +19,17 @@ import com.mojang.math.Axis;
 import gg.moonflower.molangcompiler.api.MolangEnvironment;
 import gg.moonflower.molangcompiler.api.MolangExpression;
 import gg.moonflower.pinwheel.particle.component.ParticleAppearanceBillboardComponent;
-import gg.moonflower.pollen.particle.render.QuadRenderProperties;
 import gg.moonflower.pollen.particle.BedrockParticle;
-import org.joml.*;
-import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticlePhysics;
-import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleRenderComponent;
+import gg.moonflower.pollen.particle.BedrockParticleEmitter;
 import gg.moonflower.pollen.particle.listener.BedrockParticleListener;
+import gg.moonflower.pollen.particle.render.QuadRenderProperties;
 import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.ApiStatus;
+import org.joml.*;
+import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticlePhysics;
+import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleRenderComponent;
+import priv.seventeen.artist.bedrockparticle.render.particle.instance.BedrockParticleEmitterImpl;
 
 import java.lang.Math;
 
@@ -130,45 +132,89 @@ public class ParticleAppearanceBillboardComponentImpl extends BedrockParticleCom
 
             }
             case LOOKAT_DIRECTION -> {
-                renderProperties.setDirection(true);
                 Vector3dc direction_ = getDirection();
                 if(direction_ == null){
                     return;
                 }
+                float dirX = (float) direction_.x();
+                float dirY = (float) direction_.y();
+                float dirZ = (float) direction_.z();
+                float dirLengthSq = dirX * dirX + dirY * dirY + dirZ * dirZ;
+                if (dirLengthSq < 1.0e-10f) {
+                    return;
+                }
+                float dirLength = (float) Math.sqrt(dirLengthSq);
+                dirX /= dirLength;
+                dirY /= dirLength;
+                dirZ /= dirLength;
 
-                double dx = direction_.x();
-                double dy = direction_.y();
-                double dz = direction_.z();
+                BedrockParticleEmitter emitter = this.particle.getEmitter();
+                Matrix4f emitterRotation;
+                float renderPosX = (float) pos.x();
+                float renderPosY = (float) pos.y();
+                float renderPosZ = (float) pos.z();
+                if (emitter instanceof BedrockParticleEmitterImpl emitterImpl) {
+                    emitterImpl.setRelativeRotation(true);
+                    float emitterYaw = (float) Math.toRadians(emitterImpl.yaw);
+                    float emitterPitch = (float) Math.toRadians(emitterImpl.pitch);
 
-                float yRot = (float) Mth.atan2(dz, dx);
-                float xRot = (float) Mth.atan2(dy, Math.sqrt(dx * dx + dz * dz));
+                    emitterRotation = new Matrix4f().identity();
+                    emitterRotation.rotateY(-emitterYaw);
+                    emitterRotation.rotateX(-emitterPitch);
 
-                Quaternionf rotation = renderProperties.getRotation().identity();
-                rotation.rotateY(-yRot);
-                rotation.rotateX(xRot + (float)(Math.PI/2));
+                    Vector4f dirVec4 = new Vector4f(dirX, dirY, dirZ, 0);
+                    emitterRotation.transform(dirVec4);
+                    dirX = dirVec4.x;
+                    dirY = dirVec4.y;
+                    dirZ = dirVec4.z;
+
+                    Vector3dc emitterPos = emitter.position(0);
+                    float relX = (float)(pos.x() - emitterPos.x());
+                    float relY = (float)(pos.y() - emitterPos.y());
+                    float relZ = (float)(pos.z() - emitterPos.z());
+                    Vector4f relPos = new Vector4f(relX, relY, relZ, 1);
+                    emitterRotation.transform(relPos);
+                    renderPosX = (float)(relPos.x + emitterPos.x());
+                    renderPosY = (float)(relPos.y + emitterPos.y());
+                    renderPosZ = (float)(relPos.z + emitterPos.z());
+                }
+
+                float yaw = (float) -Math.atan2(-dirX, dirZ);
+
+                float horizontalLength = (float) Math.sqrt(dirX * dirX + dirZ * dirZ);
+                float pitch = (float) -Math.atan2(dirY, horizontalLength);
+
+                Matrix4f transform = new Matrix4f().identity();
+                transform.rotateY(yaw);
+                transform.rotateX(pitch);
 
                 Vector3f cameraDir = new Vector3f(
-                        (float) (camera.getPosition().x - pos.x()),
-                        (float) (camera.getPosition().y - pos.y()),
-                        (float) (camera.getPosition().z - pos.z()));
+                        (float) camera.getPosition().x - renderPosX,
+                        (float) camera.getPosition().y - renderPosY,
+                        (float) camera.getPosition().z - renderPosZ);
 
                 Vector3f rotatedNormal = new Vector3f(0, 0, 1);
-                rotation.transform(rotatedNormal);
+                transform.transformDirection(rotatedNormal);
 
-                Vector3f direction = new Vector3f((float) dx, (float) dy, (float) dz);
-                direction.normalize();
-
-                Vector3f projectDir = new Vector3f(direction);
-                projectDir.mul(cameraDir.dot(direction));
+                Vector3f direction = new Vector3f(dirX, dirY, dirZ);
+                float dotProduct = cameraDir.dot(direction);
+                Vector3f projectDir = new Vector3f(direction).mul(dotProduct);
                 cameraDir.sub(projectDir);
 
-                cameraDir.normalize();
+                if (cameraDir.lengthSquared() >= 1.0e-10f) {
+                    cameraDir.normalize();
 
-                Vector3f rotationDirection = new Vector3f();
-                rotationDirection.cross(cameraDir, rotatedNormal);
+                    Vector3f rotationDirection = new Vector3f();
+                    cameraDir.cross(rotatedNormal, rotationDirection);
 
-                float finalRotAngle = -Math.copySign(cameraDir.angle(rotatedNormal), rotationDirection.dot(direction));
-                rotation.rotateY(finalRotAngle);
+                    float angle = cameraDir.angle(rotatedNormal);
+                    float sign = Math.copySign(1.0f, rotationDirection.dot(direction));
+
+                    transform.rotateY(-sign * angle);
+                }
+
+                Quaternionf rotation = renderProperties.getRotation();
+                transform.getNormalizedRotation(rotation);
             }
         }
     }
@@ -181,16 +227,16 @@ public class ParticleAppearanceBillboardComponentImpl extends BedrockParticleCom
         switch (this.data.cameraMode()) {
             case EMITTER_TRANSFORM_XZ ->
             {
-                renderProperties.getRotation().set(Axis.XP.rotationDegrees(90));
-                renderProperties.setDirection(true);
+                renderProperties.getRotation().set(Axis.XP.rotationDegrees(-90));
+                renderProperties.setDirection(false);
             }
             case EMITTER_TRANSFORM_YZ ->
             {
                 renderProperties.getRotation().set(Axis.YP.rotationDegrees(90));
-                renderProperties.setDirection(true);
+                renderProperties.setDirection(false);
             }
             case EMITTER_TRANSFORM_XY -> {
-                renderProperties.setDirection(true);
+                renderProperties.setDirection(false);
             }
         }
     }

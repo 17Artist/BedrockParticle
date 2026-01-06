@@ -22,18 +22,11 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import gg.moonflower.molangcompiler.api.MolangEnvironment;
 import gg.moonflower.molangcompiler.api.MolangEnvironmentBuilder;
-import gg.moonflower.molangcompiler.api.bridge.MolangVariableProvider;
 import gg.moonflower.pinwheel.particle.ParticleData;
 import gg.moonflower.pinwheel.particle.component.ParticleComponent;
-import gg.moonflower.pollen.particle.render.QuadRenderProperties;
 import gg.moonflower.pinwheel.particle.transform.MatrixStack;
-import org.jetbrains.annotations.NotNull;
-import org.joml.Vector4f;
-import priv.seventeen.artist.bedrockparticle.BedrockParticle;
-import priv.seventeen.artist.bedrockparticle.render.components.type.BedrockParticleComponentFactory;
 import gg.moonflower.pollen.particle.BedrockParticleEmitter;
-import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleComponent;
-import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleRenderComponent;
+import gg.moonflower.pollen.particle.render.QuadRenderProperties;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -47,12 +40,20 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3dc;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleComponent;
+import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleRenderComponent;
+import priv.seventeen.artist.bedrockparticle.render.components.type.BedrockParticleComponentFactory;
 import priv.seventeen.artist.bedrockparticle.render.rendertype.BedrockParticleRenderType;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Ocelot
@@ -169,8 +170,12 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
                 float emitterYaw = this.emitter.yaw;
                 float emitterPitch = this.emitter.pitch;
 
-                MATRIX_STACK.rotate(Axis.YP.rotationDegrees(-emitterYaw));
-                MATRIX_STACK.rotate(Axis.XP.rotationDegrees(-emitterPitch));
+                if (emitter.isRelativeRotation()) {
+                    MATRIX_STACK.rotate(Axis.YP.rotationDegrees(-emitterYaw));
+                    if (this.renderProperties.isUseEmitterPitch()) {
+                        MATRIX_STACK.rotate(Axis.XP.rotationDegrees(-emitterPitch));
+                    }
+                }
 
 
 
@@ -190,21 +195,30 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
 
                     MATRIX_STACK.translate(targetX - emitterPos.x(), targetY - emitterPos.y(), targetZ - emitterPos.z());
                 }
-                float emitterYaw = (float) Math.toRadians(emitter.yaw);
-                float emitterPitch = (float) Math.toRadians(emitter.pitch);
-                Matrix4f rotationMatrix = new Matrix4f().identity();
-                Matrix4f tempMatrix = new Matrix4f().identity();
-                tempMatrix.identity().rotateY(-emitterYaw);
-                rotationMatrix.mul(tempMatrix);
-                tempMatrix.identity().rotateX(-emitterPitch);
-                rotationMatrix.mul(tempMatrix);
+                float finalX;
+                float finalY;
+                float finalZ;
+                if (emitter.isRelativeRotation()) {
+                    float emitterYaw = (float) Math.toRadians(emitter.yaw);
+                    float emitterPitch = (float) Math.toRadians(emitter.pitch);
+                    Matrix4f rotationMatrix = new Matrix4f().identity();
+                    Matrix4f tempMatrix = new Matrix4f().identity();
+                    tempMatrix.identity().rotateY(-emitterYaw);
+                    rotationMatrix.mul(tempMatrix);
+                    tempMatrix.identity().rotateX(-emitterPitch);
+                    rotationMatrix.mul(tempMatrix);
 
-                Vector4f particlePos = new Vector4f(particleRelativeX, particleRelativeY, particleRelativeZ, 1.0f);
-                rotationMatrix.transform(particlePos);
+                    Vector4f particlePos = new Vector4f(particleRelativeX, particleRelativeY, particleRelativeZ, 1.0f);
+                    rotationMatrix.transform(particlePos);
 
-                float finalX = (float) (particlePos.x + emitterPos.x());
-                float finalY = (float) (particlePos.y + emitterPos.y());
-                float finalZ = (float) (particlePos.z + emitterPos.z());
+                    finalX = (float) (particlePos.x + emitterPos.x());
+                    finalY = (float) (particlePos.y + emitterPos.y());
+                    finalZ = (float) (particlePos.z + emitterPos.z());
+                } else {
+                    finalX = (float) pos.x();
+                    finalY = (float) pos.y();
+                    finalZ = (float) pos.z();
+                }
 
 
                 Vec3 cameraPos = camera.getPosition();
@@ -217,8 +231,9 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
             if (this.renderProperties.canRender()) {
                 float zRot = Mth.lerp(partialTicks, this.oRoll, this.roll);
                 MATRIX_STACK.translate(0, 0.01, 0);
+                Vector3f rollAxis = this.renderProperties.getRollAxis();
+                MATRIX_STACK.rotate((float) (zRot * Math.PI / 180.0F), rollAxis.x, rollAxis.y, rollAxis.z);
                 MATRIX_STACK.rotate(this.renderProperties.getRotation());
-                MATRIX_STACK.rotate((float) (zRot * Math.PI / 180.0F), 0, 0, 1);
                 MATRIX_STACK.scale(this.renderProperties.getWidth(), this.renderProperties.getHeight(), 1.0F);
                 this.render(this.renderProperties);
             }
@@ -313,7 +328,7 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
     }
 
     @Override
-    public void addMolangVariables(MolangVariableProvider.Context context) {
+    public void addMolangVariables(Context context) {
         context.addVariable("particle_age", this.renderAge);
         context.addVariable("particle_lifetime", this.lifetime);
         context.addVariable("particle_random_1", this.random1);

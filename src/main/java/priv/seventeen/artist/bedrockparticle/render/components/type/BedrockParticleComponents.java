@@ -16,21 +16,6 @@
 package priv.seventeen.artist.bedrockparticle.render.components.type;
 
 import gg.moonflower.pinwheel.particle.component.*;
-import gg.moonflower.pinwheel.particle.component.ParticleAppearanceBillboardComponent;
-import gg.moonflower.pinwheel.particle.component.ParticleAppearanceLightingComponent;
-import gg.moonflower.pinwheel.particle.component.ParticleAppearanceTintingComponent;
-import gg.moonflower.pinwheel.particle.component.ParticleExpireInBlocksComponent;
-import gg.moonflower.pinwheel.particle.component.ParticleExpireNotInBlocksComponent;
-import gg.moonflower.pinwheel.particle.component.ParticleKillPlaneComponent;
-import gg.moonflower.pinwheel.particle.component.ParticleLifetimeEventComponent;
-import gg.moonflower.pinwheel.particle.component.EmitterLifetimeExpressionComponent;
-import gg.moonflower.pinwheel.particle.component.EmitterLifetimeLoopingComponent;
-import gg.moonflower.pinwheel.particle.component.EmitterLifetimeOnceComponent;
-import gg.moonflower.pinwheel.particle.component.ParticleLifetimeExpressionComponent;
-import gg.moonflower.pinwheel.particle.component.EmitterInitializationComponent;
-import gg.moonflower.pinwheel.particle.component.EmitterLocalSpaceComponent;
-import gg.moonflower.pinwheel.particle.component.EmitterRateInstantComponent;
-import gg.moonflower.pinwheel.particle.component.EmitterRateSteadyComponent;
 import net.minecraft.resources.ResourceLocation;
 import priv.seventeen.artist.bedrockparticle.render.components.impl.*;
 
@@ -74,6 +59,8 @@ public class BedrockParticleComponents {
 
         register("particle_initial_speed", ParticleInitialSpeedComponent::deserialize, BedrockParticleComponentFactory.particle(ParticleInitialSpeedComponentImpl::new));
         register("particle_initial_spin", ParticleInitialSpinComponent::deserialize, BedrockParticleComponentFactory.particle(ParticleInitialSpinComponentImpl::new));
+        register("particle_angular_velocity", ParticleAngularVelocityComponent::deserialize, BedrockParticleComponentFactory.particle(ParticleAngularVelocityComponentImpl::new));
+
 
         register("particle_expire_if_in_blocks",ParticleExpireInBlocksComponent::deserialize, BedrockParticleComponentFactory.particle(ParticleExpireInBlocksComponentImpl::new));
         register("particle_expire_if_not_in_blocks", ParticleExpireNotInBlocksComponent::deserialize, BedrockParticleComponentFactory.particle(ParticleExpireNotInBlocksComponentImpl::new));

@@ -19,22 +19,12 @@ import gg.moonflower.molangcompiler.api.MolangRuntime;
 import gg.moonflower.molangcompiler.api.bridge.MolangVariable;
 import gg.moonflower.molangcompiler.api.bridge.MolangVariableProvider;
 import gg.moonflower.pinwheel.particle.ParticleData;
-import gg.moonflower.pinwheel.particle.event.ParticleEvent;
 import gg.moonflower.pinwheel.particle.component.ParticleComponent;
-import org.joml.Vector3f;
-import priv.seventeen.artist.bedrockparticle.render.components.type.BedrockParticleComponentFactory;
-import priv.seventeen.artist.bedrockparticle.render.components.type.BedrockParticleComponentType;
-import priv.seventeen.artist.bedrockparticle.render.components.type.BedrockParticleComponents;
+import gg.moonflower.pinwheel.particle.event.ParticleEvent;
 import gg.moonflower.pollen.particle.BedrockParticle;
 import gg.moonflower.pollen.particle.BedrockParticleCurves;
 import gg.moonflower.pollen.particle.BedrockParticleManager;
-import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleComponent;
-import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticlePhysics;
-import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticlePhysicsComponent;
-import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleTickComponent;
 import gg.moonflower.pollen.particle.listener.BedrockParticleListener;
-import priv.seventeen.artist.bedrockparticle.render.particle.BedrockParticlePhysicsImpl;
-import priv.seventeen.artist.bedrockparticle.render.particle.ProfilingMolangEnvironment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -56,8 +46,18 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleComponent;
+import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticlePhysics;
+import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticlePhysicsComponent;
+import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleTickComponent;
+import priv.seventeen.artist.bedrockparticle.render.components.type.BedrockParticleComponentFactory;
+import priv.seventeen.artist.bedrockparticle.render.components.type.BedrockParticleComponentType;
+import priv.seventeen.artist.bedrockparticle.render.components.type.BedrockParticleComponents;
+import priv.seventeen.artist.bedrockparticle.render.particle.BedrockParticlePhysicsImpl;
+import priv.seventeen.artist.bedrockparticle.render.particle.ProfilingMolangEnvironment;
 
 import java.util.HashSet;
 import java.util.Random;
@@ -232,6 +232,13 @@ public abstract class BedrockParticleImpl extends Particle implements BedrockPar
 
                     profiler.pop();
                 }
+                float rotationVelocity = this.physics.getRotationVelocity();
+                float rotationAcceleration = this.physics.getRotationAcceleration();
+                if (rotationAcceleration != 0.0F) {
+                    this.physics.setRollVeclocity(rotationVelocity + rotationAcceleration);
+                    rotationVelocity = this.physics.getRotationVelocity();
+                }
+                this.roll += rotationVelocity;
                 profiler.pop();
             }
         }
