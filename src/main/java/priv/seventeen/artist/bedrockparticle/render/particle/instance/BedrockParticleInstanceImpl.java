@@ -216,9 +216,9 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
             if (this.renderProperties.canRender()) {
                 float zRot = Mth.lerp(partialTicks, this.oRoll, this.roll);
                 MATRIX_STACK.translate(0, 0.01, 0);
-                MATRIX_STACK.rotate(this.renderProperties.getRotation());
                 Vector3f rollAxis = this.renderProperties.getRollAxis();
-                MATRIX_STACK.rotate((float) (zRot * Math.PI / 180.0F), rollAxis.x(), rollAxis.y(), rollAxis.z());
+                MATRIX_STACK.rotate((float) (zRot * Math.PI / 180.0F), rollAxis.x, rollAxis.y, rollAxis.z);
+                MATRIX_STACK.rotate(this.renderProperties.getRotation());
                 MATRIX_STACK.scale(this.renderProperties.getWidth(), this.renderProperties.getHeight(), 1.0F);
                 this.render(this.renderProperties);
             }
