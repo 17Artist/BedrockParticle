@@ -27,6 +27,7 @@ import priv.seventeen.artist.arcartx.common.api.events.arcartx.client.CustomPack
 import priv.seventeen.artist.bedrockparticle.render.particle.instance.BedrockParticleEmitterImpl;
 import priv.seventeen.artist.bedrockparticle.target.LocationTarget;
 
+
 /**
  * @program: bedrockparticle
  * @description: 通讯
@@ -50,9 +51,10 @@ public class ArcartXNetWork implements Listener {
         LocationTarget target = new LocationTarget(x, y, z, yaw, pitch);
 
         BedrockParticleEmitterImpl emitter = new BedrockParticleEmitterImpl(null, target, Minecraft.getInstance().level, x, y, z, ResourceLocation.tryParse(id));
-        emitter.pitch = target.getYaw(1);
-        emitter.yaw = target.getPitch(1);
+        emitter.yaw = target.getYaw(1);
+        emitter.pitch = target.getPitch(1);
         Minecraft.getInstance().particleEngine.add(emitter);
     }
+
 
 }

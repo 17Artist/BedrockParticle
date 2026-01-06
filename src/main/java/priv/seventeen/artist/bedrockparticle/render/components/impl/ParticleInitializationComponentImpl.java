@@ -16,13 +16,15 @@ package priv.seventeen.artist.bedrockparticle.render.components.impl;
 
 import gg.moonflower.pinwheel.particle.component.EmitterInitializationComponent;
 import gg.moonflower.pollen.particle.BedrockParticle;
+import net.minecraft.client.Camera;
 import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleComponent;
+import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleRenderComponent;
 import priv.seventeen.artist.bedrockparticle.render.components.BedrockParticleTickComponent;
 import gg.moonflower.pollen.particle.listener.BedrockParticleListener;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public class ParticleInitializationComponentImpl implements BedrockParticleComponent, BedrockParticleTickComponent, BedrockParticleListener {
+public class ParticleInitializationComponentImpl implements BedrockParticleComponent, BedrockParticleTickComponent, BedrockParticleRenderComponent,BedrockParticleListener {
 
     private final BedrockParticle particle;
     private final EmitterInitializationComponent data;
@@ -34,15 +36,22 @@ public class ParticleInitializationComponentImpl implements BedrockParticleCompo
 
     @Override
     public void tick() {
-        if (this.data.tickExpression() != null) {
-            this.particle.getEnvironment().safeResolve(this.data.tickExpression());
+        for (int i = 0; i < this.data.updateExpressions().length; i++) {
+            this.particle.getEnvironment().safeResolve(this.data.updateExpressions()[i]);
+        }
+    }
+
+    @Override
+    public void render(Camera camera, float partialTicks) {
+        for (int i = 0; i < this.data.renderExpressions().length; i++) {
+            this.particle.getEnvironment().safeResolve(this.data.renderExpressions()[i]);
         }
     }
 
     @Override
     public void onCreate(BedrockParticle particle) {
-        if (this.data.creationExpression() != null) {
-            this.particle.getEnvironment().safeResolve(this.data.creationExpression());
+        for (int i = 0; i < this.data.creationExpressions().length; i++) {
+            this.particle.getEnvironment().safeResolve(this.data.creationExpressions()[i]);
         }
     }
 }

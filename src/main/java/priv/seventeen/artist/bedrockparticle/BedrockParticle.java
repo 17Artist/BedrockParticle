@@ -32,6 +32,8 @@ import org.slf4j.Logger;
 import priv.seventeen.artist.bedrockparticle.cache.BedrockParticleCache;
 import priv.seventeen.artist.bedrockparticle.hook.arcartx.ArcartXHooker;
 
+import java.util.Locale;
+
 @Mod(BedrockParticle.MODID)
 public class BedrockParticle {
 
@@ -41,7 +43,8 @@ public class BedrockParticle {
 
     @SuppressWarnings("removal")
     public BedrockParticle() {
-        PinwheelMolangCompiler.set(MolangCompiler.create(MolangCompiler.OPTIMIZE_FLAG, BedrockParticle.class.getClassLoader()));
+        MolangCompiler compiler = MolangCompiler.create(MolangCompiler.OPTIMIZE_FLAG, BedrockParticle.class.getClassLoader());
+        PinwheelMolangCompiler.set(input -> compiler.compile(normalizeMolang(input)));
         BedrockParticleCache.registerReloadListener();
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::commonSetup);
@@ -56,6 +59,16 @@ public class BedrockParticle {
             LOGGER.info("ArcartX is loaded, enabling compatibility features.");
             ArcartXHooker.init();
         }
+
+
+    }
+
+
+    private static String normalizeMolang(String input) {
+        if (input == null) {
+            return null;
+        }
+        return input.toLowerCase(Locale.ROOT);
     }
 
 }

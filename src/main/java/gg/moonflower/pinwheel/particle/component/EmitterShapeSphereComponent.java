@@ -68,7 +68,7 @@ public record EmitterShapeSphereComponent(MolangExpression[] offset,
             float x = random.nextFloat() * 2 - 1;
             float y = random.nextFloat() * 2 - 1;
             float z = random.nextFloat() * 2 - 1;
-            float length = r / (x * x + y * y + z * z);
+            float length = r / (float) Math.sqrt(x * x + y * y + z * z);
             x *= length;
             y *= length;
             z *= length;

@@ -232,6 +232,13 @@ public abstract class BedrockParticleImpl extends Particle implements BedrockPar
 
                     profiler.pop();
                 }
+                float rotationVelocity = this.physics.getRotationVelocity();
+                float rotationAcceleration = this.physics.getRotationAcceleration();
+                if (rotationAcceleration != 0.0F) {
+                    this.physics.setRollVeclocity(rotationVelocity + rotationAcceleration);
+                    rotationVelocity = this.physics.getRotationVelocity();
+                }
+                this.roll += rotationVelocity;
                 profiler.pop();
             }
         }
@@ -349,7 +356,7 @@ public abstract class BedrockParticleImpl extends Particle implements BedrockPar
                 case PARTICLE ->{
 
                 }
-                    // TODO
+                // TODO
 //                        this.level.addParticle(BedrockParticle.getOptions(effect), this.x, this.y, this.z, 0, 0, 0);
                 case PARTICLE_WITH_VELOCITY -> {
                     double xd;
