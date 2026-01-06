@@ -22,27 +22,45 @@ package priv.seventeen.artist.bedrockparticle;
 import com.mojang.logging.LogUtils;
 import gg.moonflower.molangcompiler.api.MolangCompiler;
 import gg.moonflower.pinwheel.particle.PinwheelMolangCompiler;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
+import priv.seventeen.artist.bedrockparticle.cache.BedrockParticleCache;
 import priv.seventeen.artist.bedrockparticle.hook.arcartx.ArcartXHooker;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.bus.api.IEventBus;
 
 import java.util.Locale;
 
-public class BedrockParticle implements ClientModInitializer {
+@Mod(BedrockParticle.MODID)
+public class BedrockParticle {
+
+    public static final String MODID = "bedrockparticle";
 
     public static final Logger LOGGER = LogUtils.getLogger();
 
 
-    @Override
-    public void onInitializeClient() {
+    public BedrockParticle(IEventBus modEventBus, ModContainer modContainer) {
         MolangCompiler compiler = MolangCompiler.create(MolangCompiler.OPTIMIZE_FLAG, BedrockParticle.class.getClassLoader());
         PinwheelMolangCompiler.set(input -> compiler.compile(normalizeMolang(input)));
-        if(FabricLoader.getInstance().isModLoaded("arcartx")){
+        BedrockParticleCache.registerReloadListener();
+        modEventBus.addListener(this::commonSetup);
+    }
+
+
+
+    private void commonSetup(final FMLCommonSetupEvent event) {
+
+        if(ModList.get().isLoaded("arcartx")){
             LOGGER.info("ArcartX is loaded, enabling compatibility features.");
             ArcartXHooker.init();
         }
+
+
     }
+
 
     private static String normalizeMolang(String input) {
         if (input == null) {
@@ -51,3 +69,4 @@ public class BedrockParticle implements ClientModInitializer {
         return input.toLowerCase(Locale.ROOT);
     }
 }
+

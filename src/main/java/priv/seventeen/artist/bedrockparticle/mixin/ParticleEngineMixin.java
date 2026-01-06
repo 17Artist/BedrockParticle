@@ -39,6 +39,7 @@ import priv.seventeen.artist.bedrockparticle.render.particle.instance.BedrockPar
 
 import java.util.Map;
 import java.util.Queue;
+import java.util.function.Predicate;
 
 @Mixin(ParticleEngine.class)
 public class ParticleEngineMixin {
@@ -52,9 +53,9 @@ public class ParticleEngineMixin {
 
 
 
-    @Inject(method = "render",
+    @Inject(method = "render(Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;Ljava/util/function/Predicate;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LightTexture;turnOffLightLayer()V",ordinal = 0))
-    public void renderPost(LightTexture lightTexture, Camera camera, float f, CallbackInfo ci) {
+    public void renderPost(LightTexture p_107339_, Camera p_107340_, float p_107341_, Frustum frustum, Predicate<ParticleRenderType> renderTypePredicate, CallbackInfo ci) {
         Queue<Particle> queue = this.particles.get(BedrockParticleInstanceImpl.GEOMETRY_SHEET);
         if (queue == null || queue.isEmpty()) {
             return;
@@ -63,8 +64,7 @@ public class ParticleEngineMixin {
         RenderSystem.enableDepthTest();
         RenderSystem.applyModelViewMatrix();
 
-        Frustum frustum = new Frustum(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix());
-        Vec3 cameraPos = camera.getPosition();
+        Vec3 cameraPos = p_107340_.getPosition();
         frustum.prepare(cameraPos.x, cameraPos.y, cameraPos.z);
 
         {
@@ -78,7 +78,7 @@ public class ParticleEngineMixin {
                     continue;
                 }
                 try {
-                    particle.render(bufferBuilder, camera, f);
+                    particle.render(bufferBuilder, p_107340_, p_107341_);
                 } catch (Throwable var17) {
                     CrashReport crashReport = CrashReport.forThrowable(var17, "Rendering Particle");
                     CrashReportCategory crashReportCategory = crashReport.addCategory("Particle being rendered");
