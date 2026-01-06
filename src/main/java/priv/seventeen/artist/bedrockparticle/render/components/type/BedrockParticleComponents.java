@@ -74,6 +74,8 @@ public class BedrockParticleComponents {
 
         register("particle_initial_speed", ParticleInitialSpeedComponent::deserialize, BedrockParticleComponentFactory.particle(ParticleInitialSpeedComponentImpl::new));
         register("particle_initial_spin", ParticleInitialSpinComponent::deserialize, BedrockParticleComponentFactory.particle(ParticleInitialSpinComponentImpl::new));
+        register("particle_angular_velocity", ParticleAngularVelocityComponent::deserialize, BedrockParticleComponentFactory.particle(ParticleAngularVelocityComponentImpl::new));
+
 
         register("particle_expire_if_in_blocks",ParticleExpireInBlocksComponent::deserialize, BedrockParticleComponentFactory.particle(ParticleExpireInBlocksComponentImpl::new));
         register("particle_expire_if_not_in_blocks", ParticleExpireNotInBlocksComponent::deserialize, BedrockParticleComponentFactory.particle(ParticleExpireNotInBlocksComponentImpl::new));

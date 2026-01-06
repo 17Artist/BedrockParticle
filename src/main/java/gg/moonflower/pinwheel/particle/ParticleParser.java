@@ -81,11 +81,12 @@ public interface ParticleParser {
      * @return A new particle from the json
      */
     static ParticleData parseParticle(JsonElement json) throws JsonParseException {
-        String formatVersion = PinwheelGsonHelper.getAsString(json.getAsJsonObject(), "format_version");
-        if (formatVersion.equals("1.10.0")) {
-            return GSON.fromJson(json.getAsJsonObject().getAsJsonObject("particle_effect"), ParticleData.class);
+        JsonObject jsonObject = json.getAsJsonObject();
+        String formatVersion = PinwheelGsonHelper.getAsString(jsonObject, "format_version", "1.10.0");
+        if (!formatVersion.startsWith("1.")) {
+            throw new JsonSyntaxException("Unsupported particle version: " + formatVersion);
         }
-        throw new JsonSyntaxException("Unsupported particle version: " + formatVersion);
+        return GSON.fromJson(jsonObject.getAsJsonObject("particle_effect"), ParticleData.class);
     }
 
     /**

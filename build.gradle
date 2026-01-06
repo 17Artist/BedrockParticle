@@ -40,7 +40,7 @@ remapJar {
 repositories {
     mavenCentral()
     maven {
-        url 'https://seventeen-artist-maven.pkg.coding.net/repository/arcartx/public/'
+        url 'https://repo.arcartx.com/repository/maven-releases/'
     }
     maven { url = "https://maven.blamejared.com/" }
 }
@@ -54,7 +54,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     compileOnly  'org.projectlombok:lombok:1.18.24'
 
-    implementation 'priv.seventeen.artist.arcartx:ArcartX-Client:1.6.563'
+    implementation 'priv.seventeen.artist.arcartx:ArcartX-Client:1.9.797'
 
     library "gg.moonflower:molang-compiler:3.1.1.19"
 }

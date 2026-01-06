@@ -17,6 +17,7 @@ package priv.seventeen.artist.bedrockparticle.render.particle;
 import gg.moonflower.molangcompiler.api.MolangEnvironment;
 import gg.moonflower.molangcompiler.api.MolangEnvironmentBuilder;
 import gg.moonflower.molangcompiler.api.MolangExpression;
+import gg.moonflower.molangcompiler.api.bridge.MolangVariableProvider;
 import gg.moonflower.molangcompiler.api.exception.MolangRuntimeException;
 import gg.moonflower.molangcompiler.api.object.MolangObject;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -178,6 +179,12 @@ public class ProfilingMolangEnvironment implements MolangEnvironment {
         @Override
         public MolangEnvironmentBuilder<MolangEnvironment> copy(MolangEnvironment environment) {
             this.builder.copy(environment);
+            return this;
+        }
+
+        @Override
+        public MolangEnvironmentBuilder<MolangEnvironment> setVariables(MolangVariableProvider provider) {
+            this.builder.setVariables(provider);
             return this;
         }
 

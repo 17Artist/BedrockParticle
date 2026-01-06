@@ -102,6 +102,32 @@ public final class ParticleData {
      */
     public record Description(String identifier, ResourceLocation texture, @Nullable String material) {
 
+        private static ResourceLocation normalizeTexture(String textureText) {
+            String normalized = textureText.replace('\\', '/');
+            if (!normalized.endsWith(".png")) {
+                normalized += ".png";
+            }
+
+            String namespace = null;
+            String path = normalized;
+            int namespaceSplit = normalized.indexOf(':');
+            if (namespaceSplit >= 0) {
+                namespace = normalized.substring(0, namespaceSplit);
+                path = normalized.substring(namespaceSplit + 1);
+            }
+
+            if (path.startsWith("textures/")) {
+                path = path.substring("textures/".length());
+            }
+            if (path.startsWith("particle/") || path.startsWith("particles/")) {
+                path = "textures/" + path;
+            } else if (!path.startsWith("textures/")) {
+                path = "textures/" + path;
+            }
+
+            return namespace == null ? ResourceLocation.tryParse(path) : ResourceLocation.tryParse(namespace + ":" + path);
+        }
+
         public static class Deserializer implements JsonDeserializer<Description> {
 
             @Override
@@ -113,10 +139,7 @@ public final class ParticleData {
                 ResourceLocation texture;
                 if (basicRenderParams.has("texture")) {
                     String textureText = basicRenderParams.get("texture").getAsString();
-                    if(!textureText.endsWith(".png")){
-                        textureText += ".png";
-                    }
-                    texture = ResourceLocation.tryParse(textureText);
+                    texture = normalizeTexture(textureText);
                     if (texture == null) {
                         texture = TextureManager.INTENTIONAL_MISSING_TEXTURE;
                     }
@@ -368,10 +391,9 @@ public final class ParticleData {
                 JsonObject curvesJson = PinwheelGsonHelper.getAsJsonObject(jsonObject, "curves");
                 for (Map.Entry<String, JsonElement> entry : curvesJson.entrySet()) {
                     String key = entry.getKey();
-                    if (!key.startsWith("variable.") && !key.startsWith("v.")) {
-                        throw new JsonSyntaxException(key + " is not a valid MoLang variable name");
-                    }
-                    curves.put(key.split("\\.", 2)[1], context.deserialize(entry.getValue(), Curve.class));
+                    int splitIndex = key.indexOf('.');
+                    String variableName = splitIndex >= 0 ? key.substring(splitIndex + 1) : key;
+                    curves.put(variableName, context.deserialize(entry.getValue(), Curve.class));
                 }
             }
 
