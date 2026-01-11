@@ -21,6 +21,7 @@ import gg.moonflower.molangcompiler.api.bridge.MolangVariableProvider;
 import gg.moonflower.pinwheel.particle.ParticleData;
 import gg.moonflower.pinwheel.particle.event.ParticleEvent;
 import gg.moonflower.pinwheel.particle.component.ParticleComponent;
+import net.minecraft.util.profiling.Profiler;
 import org.joml.Vector3f;
 import priv.seventeen.artist.bedrockparticle.render.components.type.BedrockParticleComponentFactory;
 import priv.seventeen.artist.bedrockparticle.render.components.type.BedrockParticleComponentType;
@@ -107,7 +108,7 @@ public abstract class BedrockParticleImpl extends Particle implements BedrockPar
         this.name = name;
         this.data = BedrockParticleManager.getParticle(this.name);
         this.curves = new BedrockParticleCurves(this.data);
-        this.environment = new ProfilingMolangEnvironment(MolangRuntime.runtime().setVariables(this.curves).create(), level.getProfilerSupplier());
+        this.environment = new ProfilingMolangEnvironment(MolangRuntime.runtime().setVariables(this.curves).create(), Profiler::get);
         this.random = new Random();
         this.renderAge = MolangVariable.create();
         this.lifetime = MolangVariable.create();
@@ -184,7 +185,7 @@ public abstract class BedrockParticleImpl extends Particle implements BedrockPar
 
     @Override
     public void tick() {
-        ProfilerFiller profiler = this.level.getProfiler();
+        ProfilerFiller profiler = Profiler.get();
         profiler.push("pollen");
 
         this.xo = this.x;

@@ -22,10 +22,12 @@ package priv.seventeen.artist.bedrockparticle.render.rendertype;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.Util;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.TriState;
 
 import java.util.function.BiFunction;
 
@@ -37,11 +39,11 @@ import java.util.function.BiFunction;
  **/
 public abstract class BedrockParticleRenderType extends RenderType  {
 
-    protected static final RenderStateShard.ShaderStateShard RENDERTYPE_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getParticleShader);
+    protected static final RenderStateShard.ShaderStateShard RENDERTYPE_SHADER = new RenderStateShard.ShaderStateShard(CoreShaders.PARTICLE);
     private static final BiFunction<ResourceLocation, Boolean, RenderType> RENDERTYPE = Util.memoize((p_286156_, p_286157_) -> {
         RenderType.CompositeState rendertype$compositestate =
                 RenderType.CompositeState.builder()
-                        .setTextureState(new RenderStateShard.TextureStateShard(p_286156_, false, false))
+                        .setTextureState(new RenderStateShard.TextureStateShard(p_286156_, TriState.FALSE, false))
                         .setShaderState(RENDERTYPE_SHADER)
                         .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                         .setCullState(NO_CULL)

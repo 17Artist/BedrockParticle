@@ -24,6 +24,7 @@ import gg.moonflower.pinwheel.particle.ParticleData;
 import gg.moonflower.pinwheel.particle.component.ParticleComponent;
 import gg.moonflower.pollen.particle.render.QuadRenderProperties;
 import gg.moonflower.pinwheel.particle.transform.MatrixStack;
+import net.minecraft.util.profiling.Profiler;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector4f;
 import org.joml.Vector3f;
@@ -57,17 +58,7 @@ import java.util.*;
 @ApiStatus.Internal
 public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
 
-    public static final ParticleGroup GROUP = new ParticleGroup(10000);
-    public static final ParticleRenderType GEOMETRY_SHEET = new ParticleRenderType() {
-        @Override
-        public @NotNull BufferBuilder begin(Tesselator tesselator, TextureManager textureManager) {
-            return tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
-        }
 
-        public String toString() {
-            return "GEOMETRY_SHEET";
-        }
-    };
     private static final MatrixStack MATRIX_STACK = new MatrixStack();
     private static final MultiBufferSource BUFFER_SOURCE = Minecraft.getInstance().renderBuffers().bufferSource();
     private static final Matrix4f POSITION = new Matrix4f();
@@ -107,12 +98,12 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
     }
 
     @Override
-    public void render(@NotNull VertexConsumer vertexConsumer, @NotNull Camera camera, float partialTicks) {
+    public void renderCustom(PoseStack poseStack, MultiBufferSource multiBufferSource, Camera camera, float partialTicks) {
         if (this.age < 0) {
             return;
 
         }
-        ProfilerFiller profiler = this.level.getProfiler();
+        ProfilerFiller profiler = Profiler.get();
         profiler.push("pollen");
 
         this.renderAge.setValue((this.age + partialTicks) / 20F);
@@ -229,6 +220,11 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
         profiler.pop();
     }
 
+    @Override
+    public void render(@NotNull VertexConsumer vertexConsumer, @NotNull Camera camera, float partialTicks) {
+
+    }
+
     private void render(QuadRenderProperties properties) {
         ParticleData.Description description = this.data.description();
 
@@ -260,7 +256,7 @@ public class BedrockParticleInstanceImpl extends BedrockParticleImpl {
 
     @Override
     public @NotNull ParticleRenderType getRenderType() {
-        return GEOMETRY_SHEET;
+        return ParticleRenderType.CUSTOM;
     }
 
     @Override

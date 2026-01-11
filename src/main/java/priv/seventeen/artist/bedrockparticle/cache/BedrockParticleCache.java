@@ -52,17 +52,17 @@ public class BedrockParticleCache {
 
     }
 
-    private static CompletableFuture<Void> reload(PreparableReloadListener.PreparationBarrier stage, ResourceManager resourceManager,
-                                                  ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor,
-                                                  Executor gameExecutor) {
+    public static CompletableFuture<Void> reload(PreparableReloadListener.PreparationBarrier stage, ResourceManager resourceManager, Executor backgroundExecutor, Executor gameExecutor) {
         Map<ResourceLocation, String> particles = new HashMap<>();
         BedrockParticle.LOGGER.info("Loading bedrock particles...");
+
         return CompletableFuture.allOf(
-                        load(backgroundExecutor, resourceManager, particles::put)
-                .thenCompose(stage::wait).thenAcceptAsync(empty -> {
-                    BedrockParticleManager.loadParticle(particles);
-                }, gameExecutor));
+                load(backgroundExecutor, resourceManager, particles::put)
+                        .thenCompose(stage::wait).thenAcceptAsync(empty -> {
+                            BedrockParticleManager.loadParticle(particles);
+                        }, gameExecutor));
     }
+
 
     private static CompletableFuture<Void> load(Executor backgroundExecutor, ResourceManager resourceManager,
                                                           BiConsumer<ResourceLocation, String> elementConsumer) {

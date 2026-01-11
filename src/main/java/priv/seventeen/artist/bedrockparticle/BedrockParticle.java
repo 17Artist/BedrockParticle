@@ -42,6 +42,7 @@ public class BedrockParticle implements ClientModInitializer {
             LOGGER.info("ArcartX is loaded, enabling compatibility features.");
             ArcartXHooker.init();
         }
+
     }
 
     private static String normalizeMolang(String input) {
