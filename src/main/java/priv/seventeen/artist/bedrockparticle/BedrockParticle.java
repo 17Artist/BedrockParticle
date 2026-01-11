@@ -42,14 +42,15 @@ public class BedrockParticle {
 
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    @SuppressWarnings("removal")
     public BedrockParticle() {
         MolangCompiler compiler = MolangCompiler.create(MolangCompiler.OPTIMIZE_FLAG, BedrockParticle.class.getClassLoader());
         PinwheelMolangCompiler.set(input -> compiler.compile(normalizeMolang(input)));
         BedrockParticleCache.registerReloadListener();
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        IEventBus modEventBus = MinecraftForge.EVENT_BUS;
         modEventBus.addListener(this::commonSetup);
         MinecraftForge.EVENT_BUS.register(this);
+
+
     }
 
 

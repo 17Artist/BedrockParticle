@@ -37,6 +37,7 @@ java {
 minecraft {
     mappings channel: mapping_channel, version: mapping_version
     copyIdeResources = true
+    reobf = false
     runs {
         configureEach {
             workingDirectory project.file('run')
@@ -110,14 +111,8 @@ shadowJar {
     exclude('org/objectweb/**')
 }
 
-reobf {
-    shadowJar {}
-}
-
-
-tasks.build.dependsOn reobfShadowJar
+tasks.build.dependsOn shadowJar
 shadowJar.dependsOn('classes')
-jar.finalizedBy('reobfJar')
 
 
 dependencies {
